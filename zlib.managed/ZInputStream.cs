@@ -168,7 +168,7 @@ namespace Elskom.Generic.Libs
                     return -1;
                 }
             }
-            while (this.Z.AvailOut == len && err == ZlibCompressionState.ZOK);
+            while (this.Z.AvailOut > 0 && err == ZlibCompressionState.ZOK);
 
             // System.err.print("("+(len-z.avail_out)+")");
             return len - this.Z.AvailOut;
