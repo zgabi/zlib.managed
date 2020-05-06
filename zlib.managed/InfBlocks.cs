@@ -264,7 +264,7 @@ namespace Elskom.Generic.Libs
 
                         this.left = b & 0xffff;
                         b = k = 0; // dump bits
-                        this.mode = this.left != 0 ? STORED : (this.last != 0 ? DRY : TYPE);
+                        this.mode = this.left != 0 ? STORED : this.last != 0 ? DRY : TYPE;
                         break;
 
                     case STORED:
@@ -503,7 +503,7 @@ namespace Elskom.Generic.Libs
                                 i = c == 18 ? 7 : c - 14;
                                 j = c == 18 ? 11 : 3;
 
-                                while (k < (t + i))
+                                while (k < t + i)
                                 {
                                     if (n != 0)
                                     {

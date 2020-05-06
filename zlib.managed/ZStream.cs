@@ -227,7 +227,7 @@ namespace Elskom.Generic.Libs
                 return;
             }
 
-            if (this.Dstate.PendingBuf.Length <= this.Dstate.PendingOut || this.INextOut.Length <= this.NextOutIndex || this.Dstate.PendingBuf.Length < (this.Dstate.PendingOut + len) || this.INextOut.Length < (this.NextOutIndex + len))
+            if (this.Dstate.PendingBuf.Length <= this.Dstate.PendingOut || this.INextOut.Length <= this.NextOutIndex || this.Dstate.PendingBuf.Length < this.Dstate.PendingOut + len || this.INextOut.Length < this.NextOutIndex + len)
             {
                 // System.Console.Out.WriteLine(dstate.pending_buf.Length + ", " + dstate.pending_out + ", " + next_out.Length + ", " + next_out_index + ", " + len);
                 // System.Console.Out.WriteLine("avail_out=" + avail_out);

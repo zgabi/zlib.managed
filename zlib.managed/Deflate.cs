@@ -73,7 +73,7 @@ namespace Elskom.Generic.Libs
         private const int LCODES = LITERALS + 1 + LENGTHCODES;
         private const int HEAPSIZE = (2 * LCODES) + 1;
 
-        private static readonly Config[] ConfigTable = new Config[10]
+        private static readonly Config[] ConfigTable = new Config[]
         {
             // good  lazy  nice  chain
             new Config(0, 0, 0, 0, STORED), // 0
@@ -646,7 +646,7 @@ namespace Elskom.Generic.Libs
             // (10 - bi_valid) bits. The lookahead for the last real code (before
             // the EOB of the previous block) was thus at least one plus the length
             // of the EOB plus what we have just sent of the empty static block.
-            if (1 + this.LastEobLen + 10 - this.BiValid < 9)
+            if ((1 + this.LastEobLen + 10) - this.BiValid < 9)
             {
                 this.Send_bits(STATICTREES << 1, 3);
                 this.Send_code(ENDBLOCK, StaticTree.StaticLtree);
@@ -693,7 +693,7 @@ namespace Elskom.Generic.Libs
                 }
 
                 out_length = SupportClass.URShift(out_length, 3);
-                if ((this.Matches < (this.LastLit / 2)) && out_length < in_length / 2)
+                if (this.Matches < this.LastLit / 2 && out_length < in_length / 2)
                 {
                     return true;
                 }
@@ -919,7 +919,7 @@ namespace Elskom.Generic.Libs
             }
 
             this.Flush_block_only(flush == ZlibFlushStrategy.ZFINISH);
-            return this.Strm.AvailOut == 0 ? (flush == ZlibFlushStrategy.ZFINISH) ? FinishStarted : NeedMore : flush == ZlibFlushStrategy.ZFINISH ? FinishDone : BlockDone;
+            return this.Strm.AvailOut == 0 ? flush == ZlibFlushStrategy.ZFINISH ? FinishStarted : NeedMore : flush == ZlibFlushStrategy.ZFINISH ? FinishDone : BlockDone;
         }
 
         // Send a stored block
@@ -1035,7 +1035,7 @@ namespace Elskom.Generic.Libs
                     // If the window is almost full and there is insufficient lookahead,
                     // move the upper half to the lower one to make room in the upper half.
                 }
-                else if (this.Strstart >= this.WSize + this.WSize - MINLOOKAHEAD)
+                else if (this.Strstart >= (this.WSize + this.WSize) - MINLOOKAHEAD)
                 {
                     Array.Copy(this.Window, this.WSize, this.Window, 0, this.WSize);
                     this.MatchStart -= this.WSize;
@@ -1052,7 +1052,7 @@ namespace Elskom.Generic.Libs
                     do
                     {
                         m = this.Head[--p] & 0xffff;
-                        this.Head[p] = (short)(m >= this.WSize ? (m - this.WSize) : 0);
+                        this.Head[p] = (short)(m >= this.WSize ? m - this.WSize : 0);
 
                         // head[p] = (m >= w_size?(short) (m - w_size):0);
                     }
@@ -1063,7 +1063,7 @@ namespace Elskom.Generic.Libs
                     do
                     {
                         m = this.Prev[--p] & 0xffff;
-                        this.Prev[p] = (short)(m >= this.WSize ? (m - this.WSize) : 0);
+                        this.Prev[p] = (short)(m >= this.WSize ? m - this.WSize : 0);
 
                         // prev[p] = (m >= w_size?(short) (m - w_size):0);
                         // If n is not on any hash chain, prev[n] is garbage but
@@ -1295,7 +1295,7 @@ namespace Elskom.Generic.Libs
                 // match is not better, output the previous match:
                 if (this.PrevLength >= MINMATCH && this.MatchLength <= this.PrevLength)
                 {
-                    var max_insert = this.Strstart + this.Lookahead - MINMATCH;
+                    var max_insert = (this.Strstart + this.Lookahead) - MINMATCH;
 
                     // Do not insert strings in hash table beyond this.
 
@@ -1381,7 +1381,7 @@ namespace Elskom.Generic.Libs
             int match; // matched string
             int len; // length of current match
             var best_len = this.PrevLength; // best match length so far
-            var limit = this.Strstart > (this.WSize - MINLOOKAHEAD) ? this.Strstart - (this.WSize - MINLOOKAHEAD) : 0;
+            var limit = this.Strstart > this.WSize - MINLOOKAHEAD ? this.Strstart - (this.WSize - MINLOOKAHEAD) : 0;
             var nice_match = this.NiceMatch;
 
             // Stop when cur_match becomes <= limit. To simplify the code,
@@ -1389,7 +1389,7 @@ namespace Elskom.Generic.Libs
             var wmask = this.WMask;
 
             var strend = this.Strstart + MAXMATCH;
-            var scan_end1 = this.Window[scan + best_len - 1];
+            var scan_end1 = this.Window[(scan + best_len) - 1];
             var scan_end = this.Window[scan + best_len];
 
             // The code is optimized for HASH_BITS >= 8 and MAX_MATCH-2 multiple of 16.
@@ -1414,7 +1414,7 @@ namespace Elskom.Generic.Libs
 
                 // Skip to next match if the match length cannot increase
                 // or if the match length is less than 2:
-                if (this.Window[match + best_len] != scan_end || this.Window[match + best_len - 1] != scan_end1 || this.Window[match] != this.Window[scan] || this.Window[++match] != this.Window[scan + 1])
+                if (this.Window[match + best_len] != scan_end || this.Window[(match + best_len) - 1] != scan_end1 || this.Window[match] != this.Window[scan] || this.Window[++match] != this.Window[scan + 1])
                 {
                     continue;
                 }
@@ -1446,7 +1446,7 @@ namespace Elskom.Generic.Libs
                         break;
                     }
 
-                    scan_end1 = this.Window[scan + best_len - 1];
+                    scan_end1 = this.Window[(scan + best_len) - 1];
                     scan_end = this.Window[scan + best_len];
                 }
             }
@@ -1499,7 +1499,7 @@ namespace Elskom.Generic.Libs
             this.HashBits = memLevel + 7;
             this.HashSize = 1 << this.HashBits;
             this.HashMask = this.HashSize - 1;
-            this.HashShift = (this.HashBits + MINMATCH - 1) / MINMATCH;
+            this.HashShift = ((this.HashBits + MINMATCH) - 1) / MINMATCH;
 
             this.Window = new byte[this.WSize * 2];
             this.Prev = new short[this.WSize];
@@ -1538,7 +1538,7 @@ namespace Elskom.Generic.Libs
                 this.Noheader = 0; // was set to -1 by deflate(..., Z_FINISH);
             }
 
-            this.Status = (this.Noheader != 0) ? BUSYSTATE : INITSTATE;
+            this.Status = this.Noheader != 0 ? BUSYSTATE : INITSTATE;
             strm.Adler = Adler32.Calculate(0, null, 0, 0);
 
             this.LastFlush = ZlibFlushStrategy.ZNOFLUSH;

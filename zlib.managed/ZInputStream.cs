@@ -140,7 +140,7 @@ namespace Elskom.Generic.Libs
             this.Z.AvailOut = len;
             do
             {
-                if ((this.Z.AvailIn == 0) && (!this.Moreinput))
+                if (this.Z.AvailIn == 0 && !this.Moreinput)
                 {
                     // if buffer is empty and more input is avaiable, refill it
                     this.Z.NextInIndex = 0;
@@ -154,7 +154,7 @@ namespace Elskom.Generic.Libs
 
                 err = this.Compress ? this.Z.Deflate(this.FlushMode) : this.Z.Inflate(this.FlushMode);
 
-                if (this.Moreinput && (err == ZlibCompressionState.ZBUFERROR))
+                if (this.Moreinput && err == ZlibCompressionState.ZBUFERROR)
                 {
                     return -1;
                 }
@@ -164,7 +164,7 @@ namespace Elskom.Generic.Libs
                     throw new ZStreamException((this.Compress ? "de" : "in") + "flating: " + this.Z.Msg);
                 }
 
-                if (this.Moreinput && (this.Z.AvailOut == len))
+                if (this.Moreinput && this.Z.AvailOut == len)
                 {
                     return -1;
                 }

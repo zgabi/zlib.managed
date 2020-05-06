@@ -128,7 +128,7 @@ namespace Elskom.Generic.Libs
                         z.AvailIn--; z.TotalIn++;
                         b = z.INextIn[z.NextInIndex++] & 0xff;
 
-                        if ((((z.Istate.Method << 8) + b) % 31) != 0)
+                        if (((z.Istate.Method << 8) + b) % 31 != 0)
                         {
                             z.Istate.Mode = BAD;
                             z.Msg = "incorrect header check";
@@ -293,7 +293,7 @@ namespace Elskom.Generic.Libs
                         z.AvailIn--; z.TotalIn++;
                         z.Istate.Need += z.INextIn[z.NextInIndex++] & 0xffL;
 
-                        if (((int)z.Istate.Was[0]) != ((int)z.Istate.Need))
+                        if ((int)z.Istate.Was[0] != (int)z.Istate.Need)
                         {
                             z.Istate.Mode = BAD;
                             z.Msg = "incorrect data check";
@@ -332,7 +332,7 @@ namespace Elskom.Generic.Libs
 
             z.Adler = Adler32.Calculate(0, null, 0, 0);
 
-            if (length >= (1 << z.Istate.Wbits))
+            if (length >= 1 << z.Istate.Wbits)
             {
                 length = (1 << z.Istate.Wbits) - 1;
                 index = dictLength - length;

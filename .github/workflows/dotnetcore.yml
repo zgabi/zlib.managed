@@ -1,10 +1,6 @@
-name: .NET Core
+name: .NET Core (build pull request)
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: [pull_request]
 
 jobs:
   build:
@@ -12,12 +8,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
+    - uses: actions/checkout@v2.1.0
+    - name: .NET core build
+      uses: actions/setup-dotnet@v1.4.0
       with:
-        dotnet-version: 5.0.100-preview.3.20163.3
-    - name: Install dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --configuration Release --no-restore
+        dotnet-version: 5.0.100-preview.4.20202.8
+    - name: Build with dotnet
+      run: dotnet build --configuration Release

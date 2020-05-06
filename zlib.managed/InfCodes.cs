@@ -59,7 +59,7 @@ namespace Elskom.Generic.Libs
 
         internal int[] Tree { get; private set; } // pointer into tree
 
-        internal int TreeIndex { get; private set; } = 0;
+        internal int TreeIndex { get; private set; }
 
         internal int Need { get; private set; } // bits needed
 
@@ -203,7 +203,7 @@ namespace Elskom.Generic.Libs
                                     // offset before dest
                                     //  just copy
                                     r = q - d;
-                                    if (q - r > 0 && (q - r) < 2)
+                                    if (q - r > 0 && q - r < 2)
                                     {
                                         s.Window[q++] = s.Window[r++];
                                         c--; // minimum count is three,
@@ -232,7 +232,7 @@ namespace Elskom.Generic.Libs
                                     {
                                         // if source crosses,
                                         c -= e; // wrapped copy
-                                        if (q - r > 0 && e > (q - r))
+                                        if (q - r > 0 && e > q - r)
                                         {
                                             do
                                             {
@@ -253,7 +253,7 @@ namespace Elskom.Generic.Libs
                                 }
 
                                 // copy all or what's left
-                                if (q - r > 0 && c > (q - r))
+                                if (q - r > 0 && c > q - r)
                                 {
                                     do
                                     {
@@ -282,7 +282,7 @@ namespace Elskom.Generic.Libs
                                 z.Msg = "invalid distance code";
 
                                 c = z.AvailIn - n;
-                                c = (k >> 3) < c ? k >> 3 : c;
+                                c = k >> 3 < c ? k >> 3 : c;
                                 n += c;
                                 p -= c;
                                 k -= c << 3;
@@ -318,7 +318,7 @@ namespace Elskom.Generic.Libs
                     else if ((e & 32) != 0)
                     {
                         c = z.AvailIn - n;
-                        c = (k >> 3) < c ? k >> 3 : c;
+                        c = k >> 3 < c ? k >> 3 : c;
                         n += c;
                         p -= c;
                         k -= c << 3;
@@ -337,7 +337,7 @@ namespace Elskom.Generic.Libs
                         z.Msg = "invalid literal/length code";
 
                         c = z.AvailIn - n;
-                        c = (k >> 3) < c ? k >> 3 : c;
+                        c = k >> 3 < c ? k >> 3 : c;
                         n += c;
                         p -= c;
                         k -= c << 3;
@@ -358,7 +358,7 @@ namespace Elskom.Generic.Libs
 
             // not enough input or output--restore pointers and return
             c = z.AvailIn - n;
-            c = (k >> 3) < c ? k >> 3 : c;
+            c = k >> 3 < c ? k >> 3 : c;
             n += c;
             p -= c;
             k -= c << 3;
