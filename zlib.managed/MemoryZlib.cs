@@ -21,7 +21,7 @@ namespace Elskom.Generic.Libs
         /// <param name="adler32">The output adler32 of the data.</param>
         /// <exception cref="NotPackableException">Thrown when the stream Errors in any way.</exception>
         [Obsolete("Use MemoryZlib.Compress(byte[], out byte[], out int) instead. This will be removed in a future release.")]
-        public static void CompressData(byte[] inData, out byte[] outData, out int adler32)
+        public static void CompressData(byte[] inData, out byte[] outData, out uint adler32)
             => Compress(inData, out outData, out adler32);
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Elskom.Generic.Libs
         /// <param name="adler32">The output adler32 of the data.</param>
         /// <exception cref="NotPackableException">Thrown when the stream Errors in any way.</exception>
         [Obsolete("Use MemoryZlib.Compress(byte[], out byte[], ZlibCompression, out int) instead. This will be removed in a future release.")]
-        public static void CompressData(byte[] inData, out byte[] outData, ZlibCompression level, out int adler32)
+        public static void CompressData(byte[] inData, out byte[] outData, ZlibCompression level, out uint adler32)
             => Compress(inData, out outData, level, out adler32);
 
         /// <summary>
@@ -68,6 +68,7 @@ namespace Elskom.Generic.Libs
             => Decompress(inData, out outData);
 
         // NEW: Now there are shortcut methods for compressing a file using the fully qualified path.
+        // NEW: Now can compress and decompress with stream outputs inside of byte arrays too.
 
         /// <summary>
         /// Compresses data using the default compression level.
@@ -78,7 +79,7 @@ namespace Elskom.Generic.Libs
         /// <exception cref="NotPackableException">
         /// Thrown when the internal compression stream errors in any way.
         /// </exception>
-        public static void Compress(byte[] inData, out byte[] outData, out int adler32)
+        public static void Compress(byte[] inData, out byte[] outData, out uint adler32)
             => Compress(inData, out outData, ZlibCompression.ZDEFAULTCOMPRESSION, out adler32);
 
         /// <summary>
@@ -90,7 +91,7 @@ namespace Elskom.Generic.Libs
         /// <exception cref="NotPackableException">
         /// Thrown when the internal compression stream errors in any way.
         /// </exception>
-        public static void Compress(string path, out byte[] outData, out int adler32)
+        public static void Compress(string path, out byte[] outData, out uint adler32)
             => Compress(File.ReadAllBytes(path), out outData, ZlibCompression.ZDEFAULTCOMPRESSION, out adler32);
 
         /// <summary>
@@ -145,47 +146,72 @@ namespace Elskom.Generic.Libs
         /// Compresses data using an specific compression level.
         /// </summary>
         /// <param name="inData">The original input data.</param>
+        /// <param name="outStream">The compressed output data.</param>
+        /// <param name="level">The compression level to use.</param>
+        /// <param name="adler32">The output adler32 of the data.</param>
+        /// <exception cref="NotPackableException">
+        /// Thrown when the internal compression stream errors in any way.
+        /// </exception>
+        public static void Compress(byte[] inData, Stream outStream, ZlibCompression level, out uint adler32)
+        {
+            try
+            {
+                using (var tmpStrm = new MemoryStream(inData))
+                using (var outZStream = new ZOutputStream(outStream, level, true))
+                {
+                    try
+                    {
+                        tmpStrm.CopyTo(outZStream);
+                    }
+                    catch (ZStreamException ex)
+                    {
+                        // the compression or decompression failed.
+                        throw new NotPackableException("Compression Failed.", ex);
+                    }
+
+                    try
+                    {
+                        outZStream.Flush();
+                    }
+                    catch (StackOverflowException ex)
+                    {
+                        throw new NotPackableException("Compression Failed due to a stack overflow.", ex);
+                    }
+
+                    try
+                    {
+                        outZStream.Finish();
+                    }
+                    catch (ZStreamException ex)
+                    {
+                        throw new NotPackableException("Compression Failed.", ex);
+                    }
+
+                    adler32 = (uint)(outZStream.Z.Adler & 0xffff);
+                }
+            }
+            catch (IOException ex)
+            {
+                throw new NotPackableException("Compression Failed.", ex);
+            }
+        }
+
+        /// <summary>
+        /// Compresses data using an specific compression level.
+        /// </summary>
+        /// <param name="inData">The original input data.</param>
         /// <param name="outData">The compressed output data.</param>
         /// <param name="level">The compression level to use.</param>
         /// <param name="adler32">The output adler32 of the data.</param>
         /// <exception cref="NotPackableException">
         /// Thrown when the internal compression stream errors in any way.
         /// </exception>
-        public static void Compress(byte[] inData, out byte[] outData, ZlibCompression level, out int adler32)
+        public static void Compress(byte[] inData, out byte[] outData, ZlibCompression level, out uint adler32)
         {
             using (var outMemoryStream = new MemoryStream())
-            using (var outZStream = new ZOutputStream(outMemoryStream, level))
-            using (Stream inMemoryStream = new MemoryStream(inData))
             {
-                try
-                {
-                    inMemoryStream.CopyTo(outZStream);
-                }
-                catch (ZStreamException)
-                {
-                    // the compression or decompression failed.
-                }
-
-                try
-                {
-                    outZStream.Flush();
-                }
-                catch (StackOverflowException ex)
-                {
-                    throw new NotPackableException("Compression Failed due to a stack overflow.", ex);
-                }
-
-                try
-                {
-                    outZStream.Finish();
-                }
-                catch (ZStreamException ex)
-                {
-                    throw new NotPackableException("Compression Failed.", ex);
-                }
-
+                Compress(inData, outMemoryStream, level, out adler32);
                 outData = outMemoryStream.ToArray();
-                adler32 = (int)(outZStream.Z.Adler & 0xffff);
             }
         }
 
@@ -199,8 +225,45 @@ namespace Elskom.Generic.Libs
         /// <exception cref="NotPackableException">
         /// Thrown when the internal compression stream errors in any way.
         /// </exception>
-        public static void Compress(string path, out byte[] outData, ZlibCompression level, out int adler32)
+        public static void Compress(string path, out byte[] outData, ZlibCompression level, out uint adler32)
             => Compress(File.ReadAllBytes(path), out outData, level, out adler32);
+
+        /// <summary>
+        /// Decompresses data.
+        /// </summary>
+        /// <param name="inData">The compressed input data.</param>
+        /// <param name="outStream">The decompressed output data.</param>
+        /// <exception cref="NotUnpackableException">
+        /// Thrown when the internal decompression stream errors in any way.
+        /// </exception>
+        public static void Decompress(byte[] inData, Stream outStream)
+        {
+            try
+            {
+                using (var tmpStrm = new MemoryStream(inData))
+                using (var outZStream = new ZOutputStream(outStream, true))
+                {
+                    try
+                    {
+                        tmpStrm.CopyTo(outZStream);
+                        outZStream.Flush();
+                        outZStream.Finish();
+                    }
+                    catch (ZStreamException ex)
+                    {
+                        throw new NotUnpackableException("Decompression Failed.", ex);
+                    }
+                    catch (StackOverflowException ex)
+                    {
+                        throw new NotPackableException("Decompression Failed due to a stack overflow.", ex);
+                    }
+                }
+            }
+            catch (IOException ex)
+            {
+                throw new NotUnpackableException("Decompression Failed.", ex);
+            }
+        }
 
         /// <summary>
         /// Decompresses data.
@@ -213,36 +276,8 @@ namespace Elskom.Generic.Libs
         public static void Decompress(byte[] inData, out byte[] outData)
         {
             using (var outMemoryStream = new MemoryStream())
-            using (var outZStream = new ZOutputStream(outMemoryStream))
-            using (Stream inMemoryStream = new MemoryStream(inData))
             {
-                try
-                {
-                    inMemoryStream.CopyTo(outZStream);
-                }
-                catch (ZStreamException)
-                {
-                    // the compression or decompression failed.
-                }
-
-                try
-                {
-                    outZStream.Flush();
-                }
-                catch (StackOverflowException ex)
-                {
-                    throw new NotPackableException("Decompression Failed due to a stack overflow.", ex);
-                }
-
-                try
-                {
-                    outZStream.Finish();
-                }
-                catch (ZStreamException ex)
-                {
-                    throw new NotUnpackableException("Decompression Failed.", ex);
-                }
-
+                Decompress(inData, outMemoryStream);
                 outData = outMemoryStream.ToArray();
             }
         }

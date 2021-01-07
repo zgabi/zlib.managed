@@ -17,6 +17,7 @@ namespace Elskom.Generic.Libs
     /// </summary>
     public class ZOutputStream : Stream
     {
+        private readonly bool keepOpen;
         private byte[] pBuf;
         private byte[] pBuf1 = new byte[1];
         private bool isDisposed;
@@ -37,6 +38,15 @@ namespace Elskom.Generic.Libs
         /// Initializes a new instance of the <see cref="ZOutputStream"/> class.
         /// </summary>
         /// <param name="output">The output stream.</param>
+        /// <param name="keepOpen">Optionally keep the output stream open when this stream is closed.</param>
+        public ZOutputStream(Stream output, bool keepOpen)
+            : this(output)
+            => this.keepOpen = keepOpen;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ZOutputStream"/> class.
+        /// </summary>
+        /// <param name="output">The output stream.</param>
         /// <param name="level">The compression level for the data to compress.</param>
         public ZOutputStream(Stream output, ZlibCompression level)
         {
@@ -45,6 +55,16 @@ namespace Elskom.Generic.Libs
             _ = this.Z.DeflateInit(level);
             this.Compress = true;
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ZOutputStream"/> class.
+        /// </summary>
+        /// <param name="output">The output stream.</param>
+        /// <param name="level">The compression level for the data to compress.</param>
+        /// <param name="keepOpen">Optionally keep the output stream open when this stream is closed.</param>
+        public ZOutputStream(Stream output, ZlibCompression level, bool keepOpen)
+            : this(output, level)
+            => this.keepOpen = keepOpen;
 
         /// <summary>
         /// Gets the base stream that this stream contains.
@@ -222,6 +242,7 @@ namespace Elskom.Generic.Libs
                 }
                 catch (Exception)
                 {
+                    // ensure no throws on this.
                 }
 
                 this.IsFinished = true;
@@ -252,6 +273,7 @@ namespace Elskom.Generic.Libs
         public override void SetLength(long value) => throw new NotImplementedException();
 
         /// <inheritdoc/>
+        [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "This method should not throw any exceptions.")]
         protected override void Dispose(bool disposing)
         {
             if (!this.isDisposed)
@@ -264,8 +286,9 @@ namespace Elskom.Generic.Libs
                         {
                             this.Finish();
                         }
-                        catch
+                        catch (Exception)
                         {
+                            // should never throw.
                         }
                     }
                     finally
@@ -275,7 +298,10 @@ namespace Elskom.Generic.Libs
                 }
 
                 this.isDisposed = true;
-                base.Dispose(disposing);
+                if (!this.keepOpen)
+                {
+                    base.Dispose(disposing);
+                }
             }
         }
 
