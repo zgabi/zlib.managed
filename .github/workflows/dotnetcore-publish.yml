@@ -15,7 +15,7 @@ jobs:
     - name: .NET core build
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.100-preview.4.20202.8
+        dotnet-version: 5.0.102
     - name: Build with dotnet
       run: dotnet build --configuration Release
     # - name: Publish Release
