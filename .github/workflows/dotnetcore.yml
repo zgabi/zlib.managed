@@ -18,9 +18,14 @@ jobs:
     - uses: actions/checkout@v2
       with:
         path: 'Sdk/zlib.managed'
+    # this sadly has to match the parent repository.
     - name: .NET core build
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.102
     - name: Build with dotnet
-      run: dotnet build --configuration Release
+      run: |
+        cd Sdk/GitBuildInfo
+        dotnet build --configuration Release
+        cd ..
+        dotnet build --configuration Release
