@@ -11,7 +11,16 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    # clone the parent repository.
     - uses: actions/checkout@v2
+      with:
+        repository: 'Elskom/Sdk'
+        ref: 'master'
+        path: 'Sdk'
+    # clone this one too.
+    - uses: actions/checkout@v2
+      with:
+        path: 'Sdk/zlib.managed'
     - name: .NET core build
       uses: actions/setup-dotnet@v1
       with:
