@@ -1,0 +1,44 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>zlib.managed</AssemblyName>
+    <Description>A cleaned up and bug fixed version of zlib.net. This is also planned to be updated frequently if needed too.</Description>
+    <PackageReleaseNotes>Changes:
+      - Reduced TFM's on the package from 19 to 1.
+      - Embed the pdb inside of the binaries.
+      - ZlibConst, ZImputStream, ZOutputStream, ZStreamException, SupportClass, Inflate, Deflate, ZlibCompressionState, ZlibCompressionStrategy, ZlibFlushStrategy, InfTree, InfCodes, InfBlocks, Tree, StaticTree, and ZStream are now removed.
+      - Added ZlibVersion() and ZlibGetAdler32() to the MemoryZlib class.
+      - Removed deprecated methods inside of the MemoryZlib class.
+      - NotPackableException and NotUnpackableException makes it more clear if error happened during compressing or decompressing anyway.
+      - Use simplified using statements instead of blocks in MemoryZlib since all the methods do is use the streams to do compression/decompression.
+      - Removed unused internal/private methods as well too (dead code).
+      - Added ZlibStream (internal).
+      - Added Compression levels 2 ~ 9 to ZlibCompression.
+      - Replaced output parameters on methods inside of the MemoryZlib class to return values.
+      - Renamed Compress methods that return an Adler32 hash to CompressHash.
+      - Removed parameterless constructor on NotPackableException and NotUnpackableException.</PackageReleaseNotes>
+    <Version>2.0.0</Version>
+    <AssemblyOriginatorKeyFile>Elskom.snk</AssemblyOriginatorKeyFile>
+    <Nullable>enable</Nullable>
+    <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <!-- Optional: Build symbol package (.snupkg) to distribute the PDB containing Source Link -->
+    <!-- <IncludeSymbols>true</IncludeSymbols> -->
+    <!-- <IncludeBuildOutput>true</IncludeBuildOutput> -->
+    <!-- <SymbolPackageFormat>snupkg</SymbolPackageFormat> -->
+    <GitBuildInfoAssemblyType>MemoryZlib</GitBuildInfoAssemblyType>
+    <!--
+        Sorry, we have to disable the warning for adding the reference assemblies to the package without adding them to the nuspec.
+        This is because of the fact that if we use the methods to add them that does add them to the nuspec, then the folder paths
+        would be added automatically to the project which is not intended at all or even wanted. As such for now the only way to
+        fix that is to disable package analysis for now.
+    -->
+    <NoPackageAnalysis Condition="'$(PublishReferenceAssemblies)' == 'true'">true</NoPackageAnalysis>
+  </PropertyGroup>
+
+  <Import Project="../../Directory.Build.props" />
+
+</Project>

@@ -5,15 +5,19 @@
 
 namespace Elskom.Generic.Libs
 {
+    using System;
+
     internal static class Adler32
     {
-        internal static long Calculate(long adler, byte[] buf, int index, int len)
+        internal static long Calculate(long adler, ReadOnlySpan<byte> buf)
         {
-            if (buf is null)
+            if (buf.Length is 0)
             {
                 return 1L;
             }
 
+            var index = 0;
+            var len = buf.Length;
             var s1 = adler & 0xffff;
             var s2 = (adler >> 16) & 0xffff;
             while (len > 0)
@@ -21,25 +25,11 @@ namespace Elskom.Generic.Libs
                 // 5552 is the largest n such that 255n(n+1)/2 + (n+1)(BASE-1) <= 2^32-1
                 var k = len < 5552 ? len : 5552;
                 len -= k;
-                while (k >= 16)
+                for (var i = k; i > 0; i--)
                 {
-                    for (var i = 0; i < 16; i++)
-                    {
-                        s1 += buf[index++] & 0xff;
-                        s2 += s1;
-                    }
-
-                    k -= 16;
-                }
-
-                if (k != 0)
-                {
-                    do
-                    {
-                        s1 += buf[index++] & 0xff;
-                        s2 += s1;
-                    }
-                    while (--k != 0);
+                    s1 += buf[index++] & 0xff;
+                    s2 += s1;
+                    k--;
                 }
 
                 // largest prime smaller than 65536.

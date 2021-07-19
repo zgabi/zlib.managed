@@ -21,7 +21,7 @@ jobs:
     - name: Restore, Build, and pack
       uses: Elskom/build-dotnet@main
       with:
-        TEST: false
+        TEST: true
 
     - name: Publish Release
       id: publish_nuget

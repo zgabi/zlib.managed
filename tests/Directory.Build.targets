@@ -1,0 +1,8 @@
+<Project>
+
+  <ItemGroup>
+    <None Remove="compressed/*.*" />
+    <Folder Remove="compressed" />
+  </ItemGroup>
+
+</Project>

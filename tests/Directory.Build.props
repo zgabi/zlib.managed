@@ -1,0 +1,12 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>opencover</CoverletOutputFormat>
+    <CoverletOutput>$(MSBuildThisFileDirectory)coverage.codacy.opencover.xml</CoverletOutput>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,22 @@
+<Project>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*-*" />
+    <PackageReference Include="xunit" Version="*-*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="*-*">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="*-*">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.msbuild" Version="*-*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Validation" Version="*-*" PrivateAssets="compile;contentfiles;analyzers;build" />
+    <ProjectReference Include="../src/zlib.managed/zlib.managed.csproj" />
+  </ItemGroup>
+
+</Project>

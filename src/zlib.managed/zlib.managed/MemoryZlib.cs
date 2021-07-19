@@ -115,8 +115,7 @@ namespace Elskom.Generic.Libs
                 using var outZStream = new ZlibStream(outStream, level, true);
                 tmpStream.CopyTo(outZStream);
                 outZStream.Flush();
-                outZStream.Finish();
-                return (uint)(outZStream.GetAdler32() & 0xffff);
+                return ZlibGetAdler32(tmpStream.ToArray());
             }
             catch (NotPackableException ex)
             {
@@ -184,7 +183,6 @@ namespace Elskom.Generic.Libs
                 using var outZStream = new ZlibStream(new MemoryStream(inData));
                 outZStream.CopyTo(outStream);
                 outZStream.Flush();
-                outZStream.Finish();
             }
             catch (NotUnpackableException ex)
             {
@@ -256,7 +254,7 @@ namespace Elskom.Generic.Libs
             }
 
             _ = stream.Seek(-2, SeekOrigin.Current);
-            return (byte)byte1 is 0x78 && (byte)byte2 is 0x01 or 0x5E or 0x9C or 0xDA;
+            return IsCompressedByZlib((byte)byte1, (byte)byte2);
         }
 
         /// <summary>
@@ -277,7 +275,7 @@ namespace Elskom.Generic.Libs
         public static bool IsCompressedByZlib(byte[] data)
             => data == null
             ? throw new ArgumentNullException(nameof(data))
-            : data.Length >= 2 && data[0] is 0x78 && data[1] is 0x01 or 0x5E or 0x9C or 0xDA;
+            : data.Length >= 2 && IsCompressedByZlib(data[0], data[1]);
 
         // NEW: Zlib version check.
 
@@ -291,13 +289,33 @@ namespace Elskom.Generic.Libs
         // NEW: Adler32 hasher.
 
         /// <summary>
+        /// Gets the Adler32 checksum of the input data.
+        /// </summary>
+        /// <param name="data">The span of the data to checksum.</param>
+        /// <returns>The Adler32 hash of the input data.</returns>
+        public static uint ZlibGetAdler32(ReadOnlySpan<byte> data)
+            => (uint)(ZlibGetAdler32(ZlibGetAdler32(), data) & 0xffff);
+
+        /// <summary>
         /// Gets the Adler32 checksum of the input data at the specified index and length.
         /// </summary>
         /// <param name="data">The data to checksum.</param>
         /// <param name="index">The index of which to checksum.</param>
         /// <param name="length">The length of the data to checksum.</param>
         /// <returns>The Adler32 hash of the input data.</returns>
-        public static long ZlibGetAdler32(byte[] data, int index, int length)
-            => Adler32.Calculate(Adler32.Calculate(0, null, 0, 0), data, index, length);
+        public static uint ZlibGetAdler32(byte[]? data, int index, int length)
+            => ZlibGetAdler32(data.AsSpan(index, length));
+
+        internal static long ZlibGetAdler32(long adler32, byte[]? data, int index, int length)
+            => ZlibGetAdler32(adler32, data.AsSpan(index, length));
+
+        internal static long ZlibGetAdler32(long adler32, ReadOnlySpan<byte> data)
+            => Adler32.Calculate(adler32, data);
+
+        internal static long ZlibGetAdler32()
+            => ZlibGetAdler32(0L, null, 0, 0);
+
+        private static bool IsCompressedByZlib(byte byte1, byte byte2)
+            => byte1 is 0x78 && byte2 is 0x01 or 0x5E or 0x9C or 0xDA;
     }
 }
