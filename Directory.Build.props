@@ -1,20 +1,14 @@
 <Project>
 
+  <Import Project="../Directory.Build.props" Condition="'$(SolutionName)' == 'build_all_packages'" />
+
   <PropertyGroup>
-    <!-- suppress message when using the .NET Preview SDKs. -->
-    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <LangVersion>latest</LangVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>zlib.managed</AssemblyName>
-    <PackageOutputPath>$(MSBuildThisFileDirectory)artifacts\</PackageOutputPath>
-    <PackageOutputPath Condition="'$(SolutionName)' == 'build_all_packages'">$(MSBuildThisFileDirectory)..\artifacts\</PackageOutputPath>
-    <Company>Els_kom org.</Company>
-    <Authors>Els_kom org.</Authors>
-    <Copyright>Copyright (c) 2018-2021</Copyright>
-    <RepositoryType>git</RepositoryType>
     <PackageTags>zlib</PackageTags>
     <RepositoryUrl>https://github.com/Elskom/zlib.managed/</RepositoryUrl>
     <PackageProjectUrl>https://github.com/Elskom/zlib.managed/</PackageProjectUrl>
+    <PackageLicenseExpression Condition="'$(SolutionName)' == 'build_all_packages'"></PackageLicenseExpression>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Description>A cleaned up and bug fixed version of zlib.net. This is also planned to be updated frequently if needed too.</Description>
     <PackageReleaseNotes>Changes:
@@ -34,8 +28,6 @@
       - Removed parameterless constructor on NotPackableException and NotUnpackableException.</PackageReleaseNotes>
     <Version>2.0.0</Version>
     <NoWarn>$(NoWarn);NU5104;NU5118</NoWarn>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Elskom.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
     <!-- Optional: Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -45,9 +37,22 @@
     <!-- <IncludeSymbols>true</IncludeSymbols> -->
     <!-- <IncludeBuildOutput>true</IncludeBuildOutput> -->
     <!-- <SymbolPackageFormat>snupkg</SymbolPackageFormat> -->
+    <GitBuildInfoAssemblyType>MemoryZlib</GitBuildInfoAssemblyType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(SolutionName)' != 'build_all_packages'">
+    <!-- suppress message when using the .NET Preview SDKs. -->
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+    <LangVersion>latest</LangVersion>
+    <Company>Els_kom org.</Company>
+    <Authors>Els_kom org.</Authors>
+    <Copyright>Copyright (c) 2018-2021</Copyright>
+    <RepositoryType>git</RepositoryType>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)artifacts\</PackageOutputPath>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Elskom.snk</AssemblyOriginatorKeyFile>
     <DebugType>embedded</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <GitBuildInfoAssemblyType>MemoryZlib</GitBuildInfoAssemblyType>
     <!--
         Sorry, we have to disable the warning for adding the reference assemblies to the package without adding them to the nuspec.
         This is because of the fact that if we use the methods to add them that does add them to the nuspec, then the folder paths
@@ -60,6 +65,7 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>preview</AnalysisLevel>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <ProduceReferenceAssemblyInOutDir>true</ProduceReferenceAssemblyInOutDir>
   </PropertyGroup>
 
 </Project>
