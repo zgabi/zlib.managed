@@ -162,15 +162,12 @@ namespace Elskom.Generic.Libs
                 {
                     // if buffer is empty and more input is available, refill it
                     this.NextInIndex = 0;
-                    if (this.pBuf.Length == 0)
-                    {
-                        this.AvailIn = 0;
-                    }
 
                     var bytesRead = this.BaseStream.Read(this.pBuf, 0, this.BufSize);
-                    if (bytesRead == 0)
+                    if (bytesRead > 0)
                     {
-                        this.AvailIn = 0;
+                        this.NextIn = pBuf;
+                        this.AvailIn = bytesRead;
                         this.MoreInput = true;
                     }
                 }
