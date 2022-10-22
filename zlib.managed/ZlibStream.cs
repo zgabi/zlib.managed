@@ -166,7 +166,7 @@ namespace Elskom.Generic.Libs
                     var bytesRead = this.BaseStream.Read(this.pBuf, 0, this.BufSize);
                     if (bytesRead > 0)
                     {
-                        this.NextIn = pBuf;
+                        this.NextIn = this.pBuf;
                         this.AvailIn = bytesRead;
                         this.MoreInput = true;
                     }
