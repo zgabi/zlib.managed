@@ -11,6 +11,7 @@
     <PackageLicenseExpression Condition="'$(SolutionName)' == 'build_all_packages'"></PackageLicenseExpression>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <Description>A cleaned up and bug fixed version of zlib.net. This is also planned to be updated frequently if needed too.</Description>
+    <RootNamespace>Elskom.Generic.Libs</RootNamespace>
     <PackageReleaseNotes>Changes:
       - Reduced TFM's on the package from 19 to 1.
       - Embed the pdb inside of the binaries.
